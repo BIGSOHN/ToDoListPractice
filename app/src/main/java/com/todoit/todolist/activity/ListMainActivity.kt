@@ -42,7 +42,8 @@ class ListMainActivity : AppCompatActivity() {
             val lstTodo = roomDatabase.todoDao().getAllReadData() as ArrayList<TodoInfo>
             for (todoItem in lstTodo) {
                 todoAdapter.addListItem(todoItem.apply {
-                    todoCompleted = false // 초기화
+                    // todoCompleted 변수도 읽어와서 설정
+                    todoCompleted = roomDatabase.todoDao().getTodoCompleted(todoItem.id) // 초기화
                 })
             }
 

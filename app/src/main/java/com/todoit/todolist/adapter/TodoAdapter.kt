@@ -20,6 +20,7 @@ import java.util.Date
 class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
     private var lstTodo : ArrayList<TodoInfo> = ArrayList()
     private lateinit var roomDatabase: TodoDatabase
+    private val lock = Any()
 
     fun  addListItem(todoItem: TodoInfo) {
         lstTodo.add(0, todoItem)
@@ -31,8 +32,12 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
             //리스트 뷰 데이터를 UI에 연동
             binding.tvContent.setText(todoItem.todoContent)
             binding.tvDate.setText((todoItem.todoDate))
+
             binding.checkCompleted.setOnCheckedChangeListener(null) // 기존 리스너 제거
             binding.checkCompleted.isChecked = todoItem.todoCompleted
+
+
+
 
 
 
@@ -112,11 +117,16 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
                     .show()
             }
 
+
+
             // 완료 여부 클릭 연동
+
             binding.checkCompleted.setOnCheckedChangeListener { compoundButton, isChecked ->
-                todoItem.todoCompleted = isChecked
-                CoroutineScope(Dispatchers.IO).launch{
-                    roomDatabase.todoDao().updateTodoCompleted(todoItem.id, isChecked)
+                synchronized(lock) {
+                    todoItem.todoCompleted = isChecked
+                    CoroutineScope(Dispatchers.IO).launch {
+                        roomDatabase.todoDao().updateTodoCompleted(todoItem.id, isChecked)
+                    }
                 }
             }
 
