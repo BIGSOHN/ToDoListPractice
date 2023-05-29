@@ -23,6 +23,11 @@ interface TodoDao {
     @Delete
     fun deleteTodoData(todoInfo: TodoInfo)
 
+    // database table에 기존에 존재하는 todoCompleted를 수정
+    @Query("UPDATE TodoInfo SET todoCompleted = :completed WHERE id = :itemId")
+    suspend fun updateTodoCompleted(itemId: Int, completed: Boolean)
+
+
 
     // database table에 전체 데이터를 가지고 옴 (조회)
     @Query("SELECT * FROM TodoInfo ORDER BY todoDate")

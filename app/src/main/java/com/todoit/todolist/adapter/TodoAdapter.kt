@@ -31,6 +31,10 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
             //리스트 뷰 데이터를 UI에 연동
             binding.tvContent.setText(todoItem.todoContent)
             binding.tvDate.setText((todoItem.todoDate))
+            binding.checkCompleted.setOnCheckedChangeListener(null) // 기존 리스너 제거
+            binding.checkCompleted.isChecked = todoItem.todoCompleted
+
+
 
             // 리스트 삭제 버튼 클릭 연동
             binding.btnRemove.setOnClickListener {
@@ -107,9 +111,23 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
                     })
                     .show()
             }
+
+            // 완료 여부 클릭 연동
+            binding.checkCompleted.setOnCheckedChangeListener { compoundButton, isChecked ->
+                todoItem.todoCompleted = isChecked
+                CoroutineScope(Dispatchers.IO).launch{
+                    roomDatabase.todoDao().updateTodoCompleted(todoItem.id, isChecked)
+                }
+            }
+
+
         }
 
+
+
     }
+
+
 
     // 뷰홀더가 생성됨. (각 리스트 아이템 1개씩 구성될 때마다 이 오버라이드 메소드가 호출됨)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoAdapter.TodoViewHolder {

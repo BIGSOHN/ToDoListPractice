@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 class TodoInfo {
     var todoContent : String = "" // 메모 내용
     var todoDate : String = "" // 메모 일자
+    var todoCompleted : Boolean = false // 완료 여부
 
     @PrimaryKey(autoGenerate = true)
     var id : Int = 0

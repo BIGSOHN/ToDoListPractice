@@ -40,8 +40,10 @@ class ListMainActivity : AppCompatActivity() {
         // 전체 데이터 load (비동기)
         CoroutineScope(Dispatchers.IO).launch {
             val lstTodo = roomDatabase.todoDao().getAllReadData() as ArrayList<TodoInfo>
-            for (todoItem in lstTodo){
-                todoAdapter.addListItem(todoItem)
+            for (todoItem in lstTodo) {
+                todoAdapter.addListItem(todoItem.apply {
+                    todoCompleted = false // 초기화
+                })
             }
 
             // UI thread에서 처리
