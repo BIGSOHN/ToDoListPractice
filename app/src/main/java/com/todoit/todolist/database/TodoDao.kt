@@ -23,6 +23,10 @@ interface TodoDao {
     @Delete
     fun deleteTodoData(todoInfo: TodoInfo)
 
+    // database table에 우선순위 값을 업데이트
+    @Query("UPDATE TodoInfo SET todopriority = :priority WHERE id = :itemId")
+    suspend fun updateTodoPriority(itemId: Int, priority: Int)
+
     // 데이터베이스 테이블에서 todoCompleted 값을 수정
     @Query("UPDATE TodoInfo SET todoCompleted = :completed WHERE id = :itemId")
     suspend fun updateTodoCompleted(itemId: Int, completed: Boolean)

@@ -24,19 +24,32 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
 
     fun  addListItem(todoItem: TodoInfo) {
         lstTodo.add(0, todoItem)
+        //sortListByPriority() // 우선순위에 따라 정렬
     }
 
+    private fun sortListByPriority() {
+        lstTodo.sortByDescending { it.todoPriority }
+        notifyDataSetChanged()
+    }
+
+    private fun getPriorityString(priority: Int): String {
+        return when (priority) {
+            0 -> "상"
+            1 -> "중"
+            2 -> "하"
+            else -> "예" // 필요에 따라 기본값 설정
+        }
+    }
 
     inner class TodoViewHolder(private val binding: ListItemTodoBinding) : RecyclerView.ViewHolder(binding.root){
         fun bind(todoItem: TodoInfo){
             //리스트 뷰 데이터를 UI에 연동
             binding.tvContent.setText(todoItem.todoContent)
             binding.tvDate.setText((todoItem.todoDate))
+            binding.tvPriority.setText(getPriorityString(todoItem.todoPriority))
 
             binding.checkCompleted.setOnCheckedChangeListener(null) // 기존 리스너 제거
             binding.checkCompleted.isChecked = todoItem.todoCompleted
-
-
 
 
 
@@ -130,6 +143,32 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
                 }
             }
 
+
+            binding.tvPriority.setOnClickListener {
+                val todoItem = lstTodo[adapterPosition]
+                val priorityArray = arrayOf("상", "중", "하")
+
+                // 현재 우선순위에 해당하는 인덱스 확인
+                val currentPrioriyIndex = todoItem.todoPriority
+
+                // 다이얼로그 생성
+                AlertDialog.Builder(binding.root.context)
+                    .setTitle("우선순위 변경")
+                    .setSingleChoiceItems(priorityArray, currentPrioriyIndex) {dialog, selectedIndex ->
+                        // 선택된 우선순위로 업데이트
+                        val newPriority = selectedIndex
+                        if (todoItem.todoPriority != newPriority){
+                            todoItem.todoPriority = newPriority
+                            CoroutineScope(Dispatchers.IO).launch {
+                                roomDatabase.todoDao().updateTodoPriority(todoItem.id, newPriority)
+                            }
+                            notifyItemChanged(adapterPosition)
+                        }
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("취소", null)
+                    .show()
+            }
 
         }
 
