@@ -27,15 +27,10 @@ interface TodoDao {
     @Query("UPDATE TodoInfo SET todopriority = :priority WHERE id = :itemId")
     suspend fun updateTodoPriority(itemId: Int, priority: Int)
 
-    // 데이터베이스 테이블에서 todoCompleted 값을 수정
-    @Query("UPDATE TodoInfo SET todoCompleted = :completed WHERE id = :itemId")
-    suspend fun updateTodoCompleted(itemId: Int, completed: Boolean)
+
 
     // 데이터베이스 테이블에서 전체 데이터 조회
     @Query("SELECT * FROM TodoInfo ORDER BY todoDate")
     fun getAllReadData(): List<TodoInfo>
 
-    // 데이터베이스 테이블에서 특정 id에 해당하는 todoCompleted 값을 가져옴
-    @Query("SELECT todoCompleted FROM TodoInfo WHERE id = :itemId")
-    suspend fun getTodoCompleted(itemId: Int): Boolean
 }

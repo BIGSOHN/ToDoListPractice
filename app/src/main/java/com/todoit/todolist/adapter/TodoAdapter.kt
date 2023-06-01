@@ -138,7 +138,16 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
                 synchronized(lock) {
                     todoItem.todoCompleted = isChecked
                     CoroutineScope(Dispatchers.IO).launch {
-                        roomDatabase.todoDao().updateTodoCompleted(todoItem.id, isChecked)
+                        val innerLstTodo = roomDatabase.todoDao().getAllReadData()
+                        for (item in innerLstTodo) {
+                            if (item.todoContent == todoItem.todoContent && item.todoDate == todoItem.todoDate) {
+                                item.todoCompleted = isChecked
+                                roomDatabase.todoDao().updateTodoData(item)
+                            }
+                        }
+                        (binding.root.context as Activity).runOnUiThread{
+                            notifyDataSetChanged() // 리스트 새로고침
+                        }
                     }
                 }
             }
@@ -152,22 +161,31 @@ class TodoAdapter : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
                 val currentPrioriyIndex = todoItem.todoPriority
 
                 // 다이얼로그 생성
-                AlertDialog.Builder(binding.root.context)
-                    .setTitle("우선순위 변경")
-                    .setSingleChoiceItems(priorityArray, currentPrioriyIndex) {dialog, selectedIndex ->
+                val dialogBuilder = AlertDialog.Builder(binding.root.context)
+                    dialogBuilder.setTitle("우선순위 변경")
+                    dialogBuilder.setSingleChoiceItems(priorityArray, currentPrioriyIndex) {dialog, selectedIndex ->
                         // 선택된 우선순위로 업데이트
                         val newPriority = selectedIndex
                         if (todoItem.todoPriority != newPriority){
                             todoItem.todoPriority = newPriority
                             CoroutineScope(Dispatchers.IO).launch {
-                                roomDatabase.todoDao().updateTodoPriority(todoItem.id, newPriority)
+                                val innerLstTodo = roomDatabase.todoDao().getAllReadData()
+                                for (item in innerLstTodo){
+                                    if (item.todoContent == todoItem.todoContent && item.todoDate == todoItem.todoDate){
+                                        item.todoPriority = newPriority
+                                        roomDatabase.todoDao().updateTodoData(item)
+
+                                    }
+                                }
+                                (binding.root.context as Activity).runOnUiThread{
+                                    notifyDataSetChanged() // 리스트 새로고침
+                                }
                             }
-                            notifyItemChanged(adapterPosition)
                         }
                         dialog.dismiss()
                     }
-                    .setNegativeButton("취소", null)
-                    .show()
+                    dialogBuilder.setNegativeButton("취소", null)
+                    dialogBuilder.show()
             }
 
         }
